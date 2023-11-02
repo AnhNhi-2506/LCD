@@ -1,0 +1,57 @@
+#include <LiquidCrystal_I2C.h>
+
+
+
+LiquidCrystal_I2C lcd(0x27, 20, 2);
+int cpu_gauge;
+char buffer[40];
+
+byte gauge_left[8] = { B11111, B10000,B10000,B10000,B10000,B10000,B10000,B11111};
+byte gauge_centrer[8] = { B11111, B00000,B00000,B00000,B00000,B00000,B00000,B11111};
+byte gauge_right[8] = { B11111, B00001,B00001,B00001,B00001,B00001,B00001,B11111};
+byte gauge_fill[8] = { B11111, B11111,B11111,B11111,B11111,B11111,B11111,B11111};
+
+void setup() {
+  // Init
+  lcd.init();
+  lcd.backlight();
+  lcd.createChar(0, gauge_left);
+  lcd.createChar(1, gauge_centrer);
+  lcd.createChar(2, gauge_right);
+  lcd.createChar(3, gauge_fill);
+
+
+}
+
+
+void loop() {
+lcd.write(0);
+lcd.write(1);
+lcd.write(1);
+lcd.write(1);
+lcd.write(1);
+lcd.write(1);
+lcd.write(1);
+lcd.write(2);
+
+  
+  lcd.setCursor(0,0);
+  sprintf(buffer, "CPU:%3d%%" , cpu_gauge);
+  lcd.print(buffer);
+
+  
+float cpu_gauge_step = 100./8.0;
+  for(int i=0;i<8;i++){
+    if(cpu_gauge < cpu_gauge_step*i) {
+      if(i==0) {lcd.write(0);}
+      else if (i==7) {lcd.write(2);}
+     else {lcd.write(1);}
+    }
+    else {
+      lcd.write(3);
+    }
+  }
+  cpu_gauge = cpu_gauge + 1;
+  if(cpu_gauge >100)(cpu_gauge = 0);
+  delay(100);
+}
